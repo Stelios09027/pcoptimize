@@ -1,0 +1,79 @@
+@echo off
+title Extreme Windows Debloater & Ultimate Performance
+color 0b
+
+:: Check for Administrator Privileges
+NET SESSION >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERROR] This script requires Administrator privileges.
+    pause
+    exit
+)
+
+echo ======================================================
+echo       EXTREME MICROSOFT DEBLOAT & PERFORMANCE
+echo ======================================================
+echo.
+
+:: 1. Unlock and Set Ultimate Performance Power Plan
+echo [1/5] Unlocking Ultimate Performance Power Plan...
+powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+for /f "tokens=4" %%a in ('powercfg -list ^| findstr "Ultimate"') do powercfg -setactive %%a
+echo Ultimate Performance is now ACTIVE.
+
+:: 2. Aggressive Background Process Kill
+echo [2/5] Killing unwanted Microsoft background processes...
+taskkill /f /im OneDrive.exe /t >nul 2>&1
+taskkill /f /im PhoneExperienceHost.exe /t >nul 2>&1
+taskkill /f /im SearchApp.exe /t >nul 2>&1
+taskkill /f /im StartMenuExperienceHost.exe /t >nul 2>&1
+taskkill /f /im Cortana.exe /t >nul 2>&1
+taskkill /f /im WindowsInternal.ComposableShell.Experiences.TextInput.InputApp.exe /t >nul 2>&1
+:: Microsoft Store & Update Backgrounders
+taskkill /f /im WinStore.App.exe /t >nul 2>&1
+taskkill /f /im WWAHost.exe /t >nul 2>&1
+
+:: 3. Deep Service Disabling (The "Useless" Stuff)
+echo [3/5] Disabling unnecessary Windows Services...
+:: Telemetry & Data Collection
+sc config DiagTrack start= disabled >nul 2>&1
+sc config dmwappushservice start= disabled >nul 2>&1
+:: Xbox Services (If you don't use Xbox app on PC)
+sc config XblAuthManager start= disabled >nul 2>&1
+sc config XblGameSave start= disabled >nul 2>&1
+sc config XboxNetApiSvc start= disabled >nul 2>&1
+sc config XboxGipSvc start= disabled >nul 2>&1
+:: Printer & Scanner (Only if you don't use a printer)
+sc config Spooler start= disabled >nul 2>&1
+:: Remote Desktop & Error Reporting
+sc config TermService start= disabled >nul 2>&1
+sc config WerSvc start= disabled >nul 2>&1
+:: Maps & Geo-Location
+sc config MapsBroker start= disabled >nul 2>&1
+sc config lfsvc start= disabled >nul 2>&1
+:: Retail Demo & Insider Service
+sc config RetailDemo start= disabled >nul 2>&1
+sc config wisvc start= disabled >nul 2>&1
+
+:: 4. Registry Performance Tweaks
+echo [4/5] Optimizing Registry for response time...
+:: Disable Transparency (Saves GPU/CPU cycles)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "EnableTransparency" /t REG_DWORD /d 0 /f >nul 2>&1
+:: Disable Game DVR (Known to cause lag)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f >nul 2>&1
+:: Increase System Responsiveness for Gaming
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "SystemResponsiveness" /t REG_DWORD /d 0 /f >nul 2>&1
+
+:: 5. Memory & Cache Purge
+echo [5/5] Purging System Cache...
+ipconfig /flushdns >nul 2>&1
+del /s /f /q %temp%\*.* >nul 2>&1
+del /s /f /q C:\Windows\Temp\*.* >nul 2>&1
+
+echo.
+echo ======================================================
+echo    SYSTEM DEBLOATED! (Discord & Games untouched)
+echo ======================================================
+echo Ultimate Performance Plan applied. Enjoy your FPS!
+pause
+exit
